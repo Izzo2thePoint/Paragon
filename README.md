@@ -22,3 +22,17 @@ paste into Claude.
 
 Type suggestions: certified units default to CPO, units under $5,000 default to
 AS-IS, everything else to Safety Certified. Change any of them on the page.
+
+## Desktop app (Windows)
+
+Download `CrosbyDescriptions.exe` from
+https://github.com/Izzo2thePoint/Paragon/releases/tag/desktop-app and put it on
+your desktop. Double-click it: it scans the live inventory (about a minute),
+saves "Crosby Descriptions.html" next to the .exe, and opens it in your browser.
+
+The first time, Windows may show "Windows protected your PC" because the app
+isn't signed. Click "More info", then "Run anyway".
+
+`.github/workflows/desktop-app.yml` rebuilds the .exe whenever `scan.py`, the
+prompts or the page template change on `main`, so edited prompts reach the app
+automatically. Re-download it after a change.

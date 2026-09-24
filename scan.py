@@ -10,16 +10,24 @@ the generic dealer blurb), and writes:
   site/index.html      - the same page as a standalone file for GitHub Pages
 
 Usage: python3 scan.py
+
+Packaged as CrosbyDescriptions.exe, it instead writes "Crosby Descriptions.html"
+next to the .exe and opens it in the browser.
 """
-import concurrent.futures
 import json
 import re
+import sys
+import time
+import urllib.error
 import urllib.parse
 import urllib.request
+import webbrowser
 from datetime import datetime, timezone
 from pathlib import Path
 
-ROOT = Path(__file__).parent
+FROZEN = getattr(sys, "frozen", False)
+# Bundled prompts and template live in PyInstaller's unpack folder when frozen.
+ROOT = Path(getattr(sys, "_MEIPASS", Path(__file__).parent))
 SITE = "https://www.crosbyvw.com"
 PROXY = SITE + "/wp-content/plugins/convertus-vms/include/php/ajax-vehicles.php"
 VMS = "https://vms.prod.convertus.rocks/api/"
@@ -46,11 +54,19 @@ PAGE_SHELL = """<!doctype html>
 """
 
 
-def vms_get(endpoint):
+def vms_get(endpoint, attempts=5):
     url = PROXY + "?endpoint=" + urllib.parse.quote(endpoint, safe="") + "&action=vms_data"
     req = urllib.request.Request(url, headers=HEADERS)
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        return json.load(resp)
+    for attempt in range(attempts):
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                return json.load(resp)
+        except urllib.error.HTTPError as e:
+            # The site rate-limits bursts (429); back off and try again.
+            if e.code not in (429, 500, 502, 503, 504) or attempt == attempts - 1:
+                raise
+            wait = e.headers.get("Retry-After")
+            time.sleep(int(wait) if wait and wait.isdigit() else 5 * 2 ** attempt)
 
 
 def list_used():
@@ -131,30 +147,41 @@ def summarize(v):
 
 
 def main():
+    print("Scanning crosbyvw.com used inventory...")
     listing = list_used()
-    with concurrent.futures.ThreadPoolExecutor(6) as pool:
-        details = list(pool.map(lambda v: vehicle_detail(v["vin"]), listing))
+    details = []
+    for i, v in enumerate(listing, 1):
+        print(f"  {i}/{len(listing)}  {v.get('year')} {v.get('make')} {v.get('model')}", flush=True)
+        details.append(vehicle_detail(v["vin"]))
+        time.sleep(0.5)
     vehicles = [summarize(v) for v in details]
     vehicles.sort(key=lambda v: (v["status"] == "ok", v["status"] != "missing", v["stock"]))
 
     scanned = datetime.now(timezone.utc).isoformat(timespec="seconds")
     data = {"scanned_at": scanned, "total_used": len(vehicles), "vehicles": vehicles}
-    (ROOT / "data").mkdir(exist_ok=True)
-    (ROOT / "data" / "inventory.json").write_text(json.dumps(data, indent=2))
 
     prompts = {
-        "safety": (ROOT / "prompts" / "safety-certified.md").read_text().strip(),
-        "cpo": (ROOT / "prompts" / "cpo.md").read_text().strip(),
-        "as-is": (ROOT / "prompts" / "as-is.md").read_text().strip(),
+        "safety": (ROOT / "prompts" / "safety-certified.md").read_text("utf-8").strip(),
+        "cpo": (ROOT / "prompts" / "cpo.md").read_text("utf-8").strip(),
+        "as-is": (ROOT / "prompts" / "as-is.md").read_text("utf-8").strip(),
     }
     page_data = dict(data, vehicles=[v for v in vehicles if v["status"] != "ok"], prompts=prompts)
-    template = (ROOT / "review_template.html").read_text()
+    template = (ROOT / "review_template.html").read_text("utf-8")
     payload = json.dumps(page_data).replace("</", "<\\/")
     page = template.replace("/*__DATA__*/null", payload)
-    (ROOT / "review.html").write_text(page)
-    # Standalone copy for GitHub Pages (the Claude artifact host adds this wrapper itself).
-    (ROOT / "site").mkdir(exist_ok=True)
-    (ROOT / "site" / "index.html").write_text(PAGE_SHELL.replace("<!--PAGE-->", page))
+    standalone = PAGE_SHELL.replace("<!--PAGE-->", page)
+
+    if FROZEN:
+        out = Path(sys.executable).parent / "Crosby Descriptions.html"
+        out.write_text(standalone, "utf-8")
+        webbrowser.open(out.as_uri())
+    else:
+        (ROOT / "data").mkdir(exist_ok=True)
+        (ROOT / "data" / "inventory.json").write_text(json.dumps(data, indent=2), "utf-8")
+        (ROOT / "review.html").write_text(page, "utf-8")
+        # Standalone copy for GitHub Pages (the Claude artifact host adds this wrapper itself).
+        (ROOT / "site").mkdir(exist_ok=True)
+        (ROOT / "site" / "index.html").write_text(standalone, "utf-8")
 
     need = page_data["vehicles"]
     print(f"{len(vehicles)} used vehicles scanned; {len(need)} need a description "
@@ -163,4 +190,15 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if not FROZEN:
+        main()
+    else:
+        # Keep the console window open so the result or error can be read.
+        try:
+            main()
+            print("\nDone. The page is open in your browser.")
+            time.sleep(4)
+        except Exception as e:
+            print(f"\nThe scan didn't finish: {e}")
+            print("Check your internet connection and try again. If it keeps failing, send this message to whoever maintains the tool.")
+            input("\nPress Enter to close.")
