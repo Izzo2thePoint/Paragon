@@ -7,6 +7,7 @@ the generic dealer blurb), and writes:
 
   data/inventory.json  - every used vehicle with its description status
   review.html          - the review page, with the prompts and vehicles embedded
+  site/index.html      - the same page as a standalone file for GitHub Pages
 
 Usage: python3 scan.py
 """
@@ -29,6 +30,20 @@ HEADERS = {"User-Agent": "Mozilla/5.0"}
 GENERIC_MARKER = "family-owned business for over 50 years"
 # Prices under this default to AS-IS in the dropdown.
 AS_IS_PRICE_LIMIT = 5000
+
+PAGE_SHELL = """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+<!--PAGE-->
+</body>
+</html>
+"""
 
 
 def vms_get(endpoint):
@@ -135,7 +150,11 @@ def main():
     page_data = dict(data, vehicles=[v for v in vehicles if v["status"] != "ok"], prompts=prompts)
     template = (ROOT / "review_template.html").read_text()
     payload = json.dumps(page_data).replace("</", "<\\/")
-    (ROOT / "review.html").write_text(template.replace("/*__DATA__*/null", payload))
+    page = template.replace("/*__DATA__*/null", payload)
+    (ROOT / "review.html").write_text(page)
+    # Standalone copy for GitHub Pages (the Claude artifact host adds this wrapper itself).
+    (ROOT / "site").mkdir(exist_ok=True)
+    (ROOT / "site" / "index.html").write_text(PAGE_SHELL.replace("<!--PAGE-->", page))
 
     need = page_data["vehicles"]
     print(f"{len(vehicles)} used vehicles scanned; {len(need)} need a description "
