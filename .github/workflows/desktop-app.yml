@@ -1,0 +1,45 @@
+name: Build desktop app
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "scan.py"
+      - "prompts/**"
+      - "review_template.html"
+      - ".github/workflows/desktop-app.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "desktop-app"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build CrosbyDescriptions.exe
+        run: |
+          pip install pyinstaller
+          pyinstaller --onefile --console --name CrosbyDescriptions \
+            --add-data "prompts:prompts" --add-data "review_template.html:." scan.py
+      - name: Publish to the "Desktop app" release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view desktop-app >/dev/null 2>&1; then
+            gh release upload desktop-app dist/CrosbyDescriptions.exe --clobber
+          else
+            gh release create desktop-app dist/CrosbyDescriptions.exe --title "Desktop app" \
+              --notes "Download CrosbyDescriptions.exe and double-click it to scan the used inventory and open the description page. Rebuilt automatically whenever the prompts or scanner change."
+          fi
