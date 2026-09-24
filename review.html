@@ -1,0 +1,287 @@
+<title>Crosby Used Descriptions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --sunk:#e9edf2; --ink:#111a26; --muted:#5b6778; --line:#d5dbe3;
+  --accent:#1d4f91; --accent-ink:#ffffff; --focus:#3a7bd5;
+  --missing:#b3261e; --missing-bg:#fbe9e7; --generic:#8a5a00; --generic-bg:#fff2d6;
+  --asis:#9a4a12; --asis-bg:#fdeee2; --safety:#1d4f91; --safety-bg:#e3ecf8; --cpo:#1e6b3a; --cpo-bg:#e2f3e8;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#0d131c; --surface:#151d29; --sunk:#1c2635; --ink:#e7ecf3; --muted:#9aa6b8; --line:#2a3647;
+  --accent:#6aa2ec; --accent-ink:#0d131c; --focus:#8bb8f3;
+  --missing:#ff8a80; --missing-bg:#3a1a19; --generic:#f2c263; --generic-bg:#35290f;
+  --asis:#f3a36a; --asis-bg:#3a2415; --safety:#8bb8f3; --safety-bg:#172a45; --cpo:#7fd39c; --cpo-bg:#15321f;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0d131c; --surface:#151d29; --sunk:#1c2635; --ink:#e7ecf3; --muted:#9aa6b8; --line:#2a3647;
+  --accent:#6aa2ec; --accent-ink:#0d131c; --focus:#8bb8f3;
+  --missing:#ff8a80; --missing-bg:#3a1a19; --generic:#f2c263; --generic-bg:#35290f;
+  --asis:#f3a36a; --asis-bg:#3a2415; --safety:#8bb8f3; --safety-bg:#172a45; --cpo:#7fd39c; --cpo-bg:#15321f;
+}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);padding-inline:16px;padding-block:24px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:20px}
+h1,h2{font-family:var(--display);font-weight:700;letter-spacing:.01em;text-wrap:balance;margin:0}
+h1{font-size:34px;line-height:1.05}
+.sub{color:var(--muted);margin:6px 0 0}
+.tally{display:flex;flex-wrap:wrap;gap:8px 20px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.tally b{color:var(--ink);font-weight:600}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;color:var(--muted);font:500 13px var(--sans);padding:7px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+input[type=search],input[type=text],textarea,select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+input[type=search]{flex:1 1 200px;min-width:0}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.list{display:grid;gap:10px}
+.car{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:12px 14px}
+.title{font-weight:600;line-height:1.3}
+.title a{color:inherit;text-decoration:none}
+.title a:hover{text-decoration:underline}
+.meta{display:flex;flex-wrap:wrap;gap:4px 14px;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;margin-top:3px}
+.mono{font-family:var(--mono);font-size:12.5px}
+.chip{display:inline-block;font:600 11px/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:4px;margin-top:6px}
+.chip.missing{color:var(--missing);background:var(--missing-bg)}
+.chip.generic{color:var(--generic);background:var(--generic-bg)}
+.side{display:grid;gap:8px;justify-items:end}
+.type{font-weight:600;min-width:170px;border-width:2px}
+.type[data-v="as-is"]{border-color:var(--asis);color:var(--asis);background:var(--asis-bg)}
+.type[data-v="safety"]{border-color:var(--safety);color:var(--safety);background:var(--safety-bg)}
+.type[data-v="cpo"]{border-color:var(--cpo);color:var(--cpo);background:var(--cpo-bg)}
+.btn{font:600 13px var(--sans);border-radius:8px;padding:7px 12px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.55;cursor:default}
+.panel[hidden]{display:none}
+.panel{border-top:1px solid var(--line);background:var(--sunk);padding:14px;display:grid;gap:12px}
+.fields{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}
+.fields label,.out label{display:grid;gap:4px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.fields input{text-transform:none;letter-spacing:0;font-weight:400}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.out{display:grid;gap:6px}
+textarea{width:100%;min-height:220px;resize:vertical;line-height:1.5;box-sizing:border-box}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.note{font-size:13px;color:var(--muted)}
+.note.warn{color:var(--missing)}
+.words{font-variant-numeric:tabular-nums}
+.empty{padding:28px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:10px}
+@media (max-width:720px){
+  .row{grid-template-columns:1fr}
+  .side{grid-column:1/-1;justify-items:stretch;grid-template-columns:1fr auto}
+  .type{min-width:0}
+  .fields{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Used inventory: descriptions to write</h1>
+    <p class="sub" id="scanned"></p>
+  </header>
+  <div class="tally" id="tally"></div>
+  <div class="bar">
+    <div class="seg" role="group" aria-label="Show">
+      <button type="button" data-f="all" aria-pressed="true">All</button>
+      <button type="button" data-f="missing" aria-pressed="false">No description</button>
+      <button type="button" data-f="generic" aria-pressed="false">Generic blurb only</button>
+    </div>
+    <input type="search" id="q" placeholder="Search stock #, VIN, make, model">
+  </div>
+  <div class="list" id="list"></div>
+</div>
+
+<script>
+const DATA = {"scanned_at": "2026-09-24T14:12:18+00:00", "total_used": 42, "vehicles": [{"stock": "1D0875", "vin": "KM8J23A48JU660875", "year": 2018, "make": "Hyundai", "model": "Tucson", "trim": "FWD 2.0L Base", "km": 108236, "price": 12765, "certified": false, "exterior": "Red", "interior": "", "drivetrain": "Front Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2018/Hyundai/TUCSON/Kitchener/ON/71362153/?sale_class=Used", "status": "missing", "current_description": "", "suggested": "safety"}, {"stock": "1D135Z", "vin": "3FMCR9C66MRA39135", "year": 2021, "make": "Ford", "model": "Bronco Sport", "trim": "Sport Outer Banks 4x4", "km": 123753, "price": 21265, "certified": false, "exterior": "Black", "interior": "", "drivetrain": "All Wheel Drive", "engine": "3 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Other", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2021/Ford/Bronco%20Sport/Kitchener/ON/71362125/?sale_class=Used", "status": "missing", "current_description": "", "suggested": "safety"}, {"stock": "1D1787", "vin": "4S4WMATD2R3431787", "year": 2024, "make": "Subaru", "model": "Ascent", "trim": "Limited 7-Passenger", "km": 81051, "price": 38265, "certified": false, "exterior": "Black", "interior": "", "drivetrain": "All Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2024/Subaru/Ascent/Kitchener/ON/71362139/?sale_class=Used", "status": "missing", "current_description": "", "suggested": "safety"}, {"stock": "1D3889", "vin": "2C4RDGBG4DR513889", "year": 2013, "make": "Dodge", "model": "Grand Caravan", "trim": "SE Wagon", "km": 251176, "price": 2419, "certified": false, "exterior": "White", "interior": "", "drivetrain": "Front Wheel Drive", "engine": "V6 Cylinder Engine", "transmission": "", "body": "Minivan", "fuel": "Other", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2013/Dodge/Grand%20Caravan/Kitchener/ON/71289678/?sale_class=Used", "status": "missing", "current_description": "", "suggested": "as-is"}, {"stock": "1D508Z", "vin": "W1N0J8EB3NG059508", "year": 2022, "make": "Mercedes-Benz", "model": "GLC", "trim": "4MATIC Coupe", "km": 123848, "price": 36765, "certified": false, "exterior": "Black", "interior": "Black", "drivetrain": "All Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Other", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2022/Mercedes-Benz/GLC/Kitchener/ON/71362116/?sale_class=Used", "status": "missing", "current_description": "", "suggested": "safety"}, {"stock": "1D8079", "vin": "5NPDH4AE6EH528079", "year": 2014, "make": "Hyundai", "model": "Elantra", "trim": "GL 6sp", "km": 162492, "price": 2419, "certified": false, "exterior": "Grey", "interior": "", "drivetrain": "Front Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Manual", "body": "Sedan", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2014/Hyundai/Elantra/Kitchener/ON/71362144/?sale_class=Used", "status": "missing", "current_description": "", "suggested": "as-is"}, {"stock": "1D9709", "vin": "1GKER13D59J149709", "year": 2009, "make": "GMC", "model": "Acadia", "trim": "SLT FWD", "km": 260348, "price": 1919, "certified": false, "exterior": "Bronze", "interior": "", "drivetrain": "Front Wheel Drive", "engine": "V6 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Other", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2009/GMC/Acadia/Kitchener/ON/71362142/?sale_class=Used", "status": "missing", "current_description": "", "suggested": "as-is"}, {"stock": "1V0825", "vin": "3VV8B7AX3RM120825", "year": 2024, "make": "Volkswagen", "model": "Tiguan", "trim": "Comfortline R-Line Black 2.0T 8sp at w/Tip 4M", "km": 42500, "price": 30765, "certified": true, "exterior": "Grey", "interior": "", "drivetrain": "All Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2024/Volkswagen/Tiguan/Kitchener/ON/71362137/?sale_class=Used", "status": "missing", "current_description": "", "suggested": "cpo"}, {"stock": "1V4359", "vin": "3VV4B7AX6RM134359", "year": 2024, "make": "Volkswagen", "model": "Tiguan", "trim": "Highline R-Line 2.0T 8sp at w/Tip 4M", "km": 69560, "price": 31265, "certified": true, "exterior": "White", "interior": "", "drivetrain": "All Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2024/Volkswagen/Tiguan/Kitchener/ON/71362121/?sale_class=Used", "status": "missing", "current_description": "", "suggested": "cpo"}, {"stock": "1V5162", "vin": "3VV2B7AX6PM025162", "year": 2023, "make": "Volkswagen", "model": "Tiguan", "trim": "Comfortline 2.0T 8sp at w/Tip 4M", "km": 67780, "price": 25765, "certified": true, "exterior": "White", "interior": "", "drivetrain": "All Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2023/Volkswagen/Tiguan/Kitchener/ON/71362126/?sale_class=Used", "status": "missing", "current_description": "", "suggested": "cpo"}, {"stock": "1V8111", "vin": "3VW6T7BU8KM158111", "year": 2019, "make": "Volkswagen", "model": "Jetta GLI", "trim": "35th 2.0T 7sp DSG at w/Tip (Offered Until 04.2019)", "km": 135741, "price": 17765, "certified": true, "exterior": "Black", "interior": "", "drivetrain": "Front Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "Other", "fuel": "Other", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2019/Volkswagen/Jetta/Kitchener/ON/71362138/?sale_class=Used", "status": "missing", "current_description": "", "suggested": "cpo"}, {"stock": "AT7344", "vin": "1V2LN2CA3TC547344", "year": 2026, "make": "Volkswagen", "model": "Atlas", "trim": "Comfortline 2.0 TSI 4MOTION", "km": 7298, "price": 51450, "certified": false, "exterior": "Black", "interior": "", "drivetrain": "All Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2026/Volkswagen/Atlas/Kitchener/ON/70691539/?sale_class=Used", "status": "missing", "current_description": "", "suggested": "safety"}, {"stock": "JG4050", "vin": "3VWEW7BU2VM004050", "year": 2027, "make": "Volkswagen", "model": "Jetta", "trim": "Comfortline Sedan", "km": 827, "price": 29795, "certified": false, "exterior": "Silver", "interior": "", "drivetrain": "Front Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Manual", "body": "Sedan", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2027/Volkswagen/Jetta/Kitchener/ON/71150473/?sale_class=Used", "status": "missing", "current_description": "", "suggested": "safety"}, {"stock": "TA2612", "vin": "3VV8C7B20TM002612", "year": 2026, "make": "Volkswagen", "model": "Taos", "trim": "Trendline 4MOTION", "km": 4100, "price": 32595, "certified": false, "exterior": "Black", "interior": "", "drivetrain": "All Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2026/Volkswagen/Taos/Kitchener/ON/70691551/?sale_class=Used", "status": "missing", "current_description": "", "suggested": "safety"}, {"stock": "TA2826", "vin": "3VVUD7B2XVM002826", "year": 2027, "make": "Volkswagen", "model": "Taos", "trim": "Comfortline 4MOTION", "km": 90, "price": 36195, "certified": false, "exterior": "White", "interior": "", "drivetrain": "All Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2027/Volkswagen/Taos/Kitchener/ON/71150468/?sale_class=Used", "status": "missing", "current_description": "", "suggested": "safety"}, {"stock": "AT1601", "vin": "1V2BC2CA9TC221601", "year": 2026, "make": "Volkswagen", "model": "Atlas Cross Sport", "trim": "Highline 4MOTION", "km": 90, "price": 58895, "certified": false, "exterior": "White", "interior": "Black", "drivetrain": "All Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2026/Volkswagen/Atlas%20Cross%20Sport/Kitchener/ON/69438095/?sale_class=New", "status": "generic", "current_description": "Crosby Volkswagen has been a family-owned business for over 50 years, where customer service has always been at the top of our list of priorities. At Crosby Volkswagen, the customer always comes first, you'll find a dedicated team at Crosby Volkswagen that has your satisfaction at heart.", "suggested": "safety"}, {"stock": "AT9617", "vin": "1V2BN2CA5TC529617", "year": 2026, "make": "Volkswagen", "model": "Atlas", "trim": "Highline 2.0 TSI 4MOTION", "km": 5591, "price": 58595, "certified": false, "exterior": "Black", "interior": "Black", "drivetrain": "All Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2026/Volkswagen/Atlas/Kitchener/ON/70266133/?sale_class=Used", "status": "generic", "current_description": "Crosby Volkswagen has been a family-owned business for over 50 years, where customer service has always been at the top of our list of priorities. At Crosby Volkswagen, the customer always comes first, you'll find a dedicated team at Crosby Volkswagen that has your satisfaction at heart.", "suggested": "safety"}, {"stock": "TA2776", "vin": "3VV2C7B26TM012776", "year": 2026, "make": "Volkswagen", "model": "Taos", "trim": "Comfortline Black Edition 4MOTION", "km": 3418, "price": 38395, "certified": false, "exterior": "Blue", "interior": "Black", "drivetrain": "All Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2026/Volkswagen/Taos/Kitchener/ON/68307855/?sale_class=Used", "status": "generic", "current_description": "Crosby Volkswagen has been a family-owned business for over 50 years, where customer service has always been at the top of our list of priorities. At Crosby Volkswagen, the customer always comes first, you'll find a dedicated team at Crosby Volkswagen that has your satisfaction at heart.", "suggested": "safety"}, {"stock": "TI0329", "vin": "3VVER7RM9TM080329", "year": 2026, "make": "Volkswagen", "model": "Tiguan", "trim": "Comfortline 4MOTION", "km": 4851, "price": 40760, "certified": false, "exterior": "Grey", "interior": "Black", "drivetrain": "All Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2026/Volkswagen/Tiguan/Kitchener/ON/70266125/?sale_class=Used", "status": "generic", "current_description": "Crosby Volkswagen has been a family-owned business for over 50 years, where customer service has always been at the top of our list of priorities. At Crosby Volkswagen, the customer always comes first, you'll find a dedicated team at Crosby Volkswagen that has your satisfaction at heart.", "suggested": "safety"}, {"stock": "TI2305", "vin": "3VVBR7RM9TM022305", "year": 2026, "make": "Volkswagen", "model": "Tiguan", "trim": "Trendline 4MOTION", "km": 4524, "price": 36760, "certified": false, "exterior": "White", "interior": "Black", "drivetrain": "All Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2026/Volkswagen/Tiguan/Kitchener/ON/70266135/?sale_class=Used", "status": "generic", "current_description": "Crosby Volkswagen has been a family-owned business for over 50 years, where customer service has always been at the top of our list of priorities. At Crosby Volkswagen, the customer always comes first, you'll find a dedicated team at Crosby Volkswagen that has your satisfaction at heart.", "suggested": "safety"}, {"stock": "TI5667", "vin": "3VVBR7RM6TM085667", "year": 2026, "make": "Volkswagen", "model": "Tiguan", "trim": "Trendline 4MOTION", "km": 90, "price": 37495, "certified": false, "exterior": "Black", "interior": "Black", "drivetrain": "All Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2026/Volkswagen/Tiguan/Kitchener/ON/69557423/?sale_class=New", "status": "generic", "current_description": "Crosby Volkswagen has been a family-owned business for over 50 years, where customer service has always been at the top of our list of priorities. At Crosby Volkswagen, the customer always comes first, you'll find a dedicated team at Crosby Volkswagen that has your satisfaction at heart.", "suggested": "safety"}, {"stock": "TZ2365", "vin": "3VVER7RM5TM122365", "year": 2026, "make": "Volkswagen", "model": "Tiguan", "trim": "Comfortline 4MOTION", "km": 90, "price": 40995, "certified": false, "exterior": "Black", "interior": "Black", "drivetrain": "All Wheel Drive", "engine": "4 Cylinder Engine", "transmission": "Automatic", "body": "SUV", "fuel": "Gas", "in_transit": false, "on_order": false, "url": "https://www.crosbyvw.com/vehicles/2026/Volkswagen/Tiguan/Kitchener/ON/71172132/?sale_class=New", "status": "generic", "current_description": "Crosby Volkswagen has been a family-owned business for over 50 years, where customer service has always been at the top of our list of priorities. At Crosby Volkswagen, the customer always comes first, you'll find a dedicated team at Crosby Volkswagen that has your satisfaction at heart.", "suggested": "safety"}], "prompts": {"safety": "Role: Act as a Senior Automotive Copywriter for Crosby Volkswagen in Kitchener. Your goal is to write a concise, high-converting VDP description (~200\u2013250 words) for a pre-owned vehicle. Focus heavily on vehicle condition, key features, and Crosby\u2019s transparent reconditioning process.\n\nVehicle Details:\n\nYear/Make/Model/Trim: {Year} {Make} {Model} {Trim}\n\nMileage: {Kilometers} km\n\nHistory/Condition: {accident History}, {number of Owners}, Great shape\n\nKey Features: hot button features\n\nWriting Guidelines:\n\nPunchy Opening (No Gordon Mention): Start directly with the vehicle, year, model, mileage, and clean condition/history. Mention Crosby VW briefly as a family-owned Kitchener staple for 60 years and use phrases like \"Personally selected for our used car gallery\" or \"A well-cared-for local trade-in.\"\n\nFeature & Condition Focus: Translate 5 key features directly into lifestyle benefits tailored for Kitchener-Waterloo drivers (Feature first \u2192 Benefit). Keep bullets to 1 sentence each.\n\nExpert Inspection: Highlight that it was inspected and reconditioned by our Volkswagen-trained technicians who know precision engineering \"from top to bottom.\"\n\nNo-Nonsense Transparency: Explicitly state there are no hidden or extra fees.\n\nTightened Crosby Close: End with a concise version of our closing promise: \"At Crosby Volkswagen, our 'People First Promise' prioritizes your experience over the transaction with complete simplicity and transparency. Visit us in Kitchener at 632 Victoria Street North or contact us today.\"\n\nFormat & Length: Professional, punchy, mobile-optimized (short paragraphs, bold headers). Strict target: 200\u2013250 words.", "cpo": "Role: Act as a Senior Automotive Copywriter for Crosby Volkswagen in Kitchener. Your goal is to write a concise, high-converting VDP description (~200\u2013250 words) for a Volkswagen Certified Pre-Owned vehicle. Focus heavily on CPO peace of mind, vehicle condition, key features, and Crosby\u2019s transparent reconditioning process.\n\nVehicle Details:\n\nYear/Make/Model/Trim: {Year} {Make} {Model} {Trim}\n\nMileage: {Kilometers} km\n\nHistory/Condition: {accident History}, {number of Owners}, Great shape\n\nKey Features: {Insert Key Features}\n\nWriting Guidelines:\n\nPunchy Opening (No Gordon Mention): Start directly with the vehicle, year, model, mileage, and clean condition/history. Highlight its CPO status and mention Crosby VW briefly as a family-owned Kitchener staple for 60 years. Use phrases like \"Hand-selected for our pre-owned gallery\" or \"A well-cared-for local CPO trade-in.\"\n\nFeature & Condition Focus: Translate 5 key features directly into lifestyle benefits tailored for Kitchener-Waterloo drivers (Feature first \u2192 Benefit). Keep bullets to 1 sentence each.\n\nThe CPO Advantage & Inspection: Highlight the 112-point inspection and reconditioning performed by our VW-trained technicians, along with CPO Assurance benefits like 24-hour roadside assistance and manufacturer-backed warranty coverage.\n\nNo-Nonsense Transparency: Explicitly state there are no hidden or extra fees.\n\nTightened Crosby Close: End with a concise version of our closing promise: \"At Crosby Volkswagen, our 'People First Promise' prioritizes your experience over the transaction with complete simplicity and transparency. Visit us in Kitchener at 632 Victoria Street North or contact us today.\"\n\nFormat & Length: Professional, punchy, mobile-optimized (short paragraphs, bold headers). Strict target: 200\u2013250 words.", "as-is": "Looking for a project or a budget-friendly find? At Crosby Volkswagen, our \"As-Is\" inventory consists of vehicles that have not undergone our full mechanical reconditioning process. This allows us to pass the savings directly to you, offering a straightforward, no-nonsense buying experience.\n\nWhy Choose an As-Is Vehicle?\nMaximum Savings: These vehicles are priced at our most competitive rates.\n\nTotal Transparency: We provide all available history reports so you can make an informed decision.\n\nDIY Opportunity: Perfect for those with mechanical skills or looking for a secondary project car.\n\nMandatory OMVIC Disclosure\nVEHICLE SOLD AS IS: The motor vehicle sold under this contract is being sold as is and is not represented as being in roadworthy condition, mechanically sound or maintained at any guaranteed level of quality. The vehicle may not be fit for use as a means of transportation and may require substantial repairs at the purchaser's expense. It may not be possible to register the vehicle to be driven in its current condition.\n\nVisit us at 632 Victoria Street North, Kitchener, to view our current selection. Since 1966, we've focused on simplicity, transparency, and treating every customer like family."}};
+const TYPES = {"as-is":"AS-IS","safety":"Safety Certified","cpo":"CPO"};
+const STORE_KEY = "crosby-desc-v1";
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); } catch (e) {}
+function persist(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(saved)); } catch (e) {} }
+function st(v){ return saved[v.vin] || (saved[v.vin] = {type: v.suggested, features: "", accident: "", owners: "", text: ""}); }
+
+const fmt = n => n == null ? "" : n.toLocaleString("en-CA");
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// The website strips curly quotes and dashes (e.g. "we've" shows as "weve"), so keep output to plain characters.
+function plain(t){
+  return t.replace(/[‘’ʼ]/g,"'").replace(/[“”]/g,'"')
+    .replace(/\s*[—]\s*/g," - ").replace(/[–]/g,"-").replace(/…/g,"...")
+    .replace(/→/g,"->").replace(/ /g," ").replace(/^\s*[•\*]\s+/gm,"- ")
+    .replace(/\*\*(.+?)\*\*/g,"$1").replace(/^#+\s*/gm,"");
+}
+
+function buildPrompt(v, s){
+  const missing = "[not provided - leave this out]";
+  let p = DATA.prompts[s.type]
+    .replace(/\{Year\}/g, v.year).replace(/\{Make\}/g, v.make).replace(/\{Model\}/g, v.model).replace(/\{Trim\}/g, v.trim)
+    .replace(/\{Kilometers\}/g, fmt(v.km))
+    .replace(/\{accident History\}/g, s.accident.trim() || missing)
+    .replace(/\{number of Owners\}/g, s.owners.trim() || missing)
+    .replace(/^Key Features:.*$/m, "Key Features: " + (s.features.trim() || "[not provided - use only equipment that is standard on this exact year and trim]"));
+  const listing = [
+    ["Exterior colour", v.exterior], ["Interior colour", v.interior], ["Body", v.body], ["Drivetrain", v.drivetrain],
+    ["Engine", v.engine], ["Transmission", v.transmission], ["Fuel", v.fuel]
+  ].filter(([,x]) => x).map(([k,x]) => k + ": " + x).join("\n");
+  return p + "\n\nListing data (for accuracy):\n" + listing +
+    "\n\nOutput: only the description, as plain text ready to paste into the website. Put each header on its own line with no asterisks or # symbols, start bullets with \"- \", and use straight quotes and plain hyphens (no em dashes or curly quotes).";
+}
+
+let filter = "all";
+function visible(){
+  const q = document.getElementById("q").value.trim().toLowerCase();
+  return DATA.vehicles.filter(v => (filter === "all" || v.status === filter) &&
+    (!q || [v.stock, v.vin, v.year, v.make, v.model, v.trim].join(" ").toLowerCase().includes(q)));
+}
+
+function render(){
+  const vs = DATA.vehicles;
+  document.getElementById("scanned").textContent = "Scanned crosbyvw.com " +
+    new Date(DATA.scanned_at).toLocaleString("en-CA", {dateStyle:"medium", timeStyle:"short"}).replace(/\.$/,"") +
+    ". Pick a type for each vehicle, then write or copy its description.";
+  updateTally();
+  const list = document.getElementById("list");
+  const shown = visible();
+  list.innerHTML = shown.length ? shown.map(card).join("") : `<div class="empty">No vehicles match.</div>`;
+}
+
+function card(v){
+  const s = st(v);
+  const where = v.on_order ? " &middot; On order" : v.in_transit ? " &middot; In transit" : "";
+  return `<article class="car" data-vin="${esc(v.vin)}">
+    <div class="row">
+      <div>
+        <div class="title"><a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.year)} ${esc(v.make)} ${esc(v.model)} ${esc(v.trim)}</a></div>
+        <div class="meta"><span class="mono">#${esc(v.stock)}</span><span class="mono">${esc(v.vin)}</span><span>${fmt(v.km)} km</span><span>$${fmt(v.price)}</span><span>${esc(v.exterior)}${where}</span></div>
+        <span class="chip ${v.status}">${v.status === "missing" ? "No description" : "Generic blurb only"}</span>
+      </div>
+      <div class="side">
+        <select class="type" id="type-${esc(v.vin)}" data-act="type" data-v="${s.type}" aria-label="Inventory type">
+          ${Object.entries(TYPES).map(([k,l]) => `<option value="${k}"${k===s.type?" selected":""}>${l}</option>`).join("")}
+        </select>
+        <button type="button" class="btn" data-act="toggle" aria-expanded="false">${s.text ? "Open description" : "Write description"}</button>
+      </div>
+    </div>
+    <div class="panel" hidden></div>
+  </article>`;
+}
+
+function panel(v){
+  const s = st(v), asIs = s.type === "as-is";
+  const fields = asIs ? `<p class="hint">AS-IS vehicles use your standard AS-IS text word for word, including the OMVIC disclosure.</p>` : `
+    <div class="fields">
+      <label>Key features<input type="text" id="feat-${esc(v.vin)}" data-in="features" value="${esc(s.features)}" placeholder="e.g. Heated seats, Apple CarPlay, sunroof, adaptive cruise, 4MOTION"></label>
+      <label>Accident history<input type="text" id="acc-${esc(v.vin)}" data-in="accident" value="${esc(s.accident)}" placeholder="e.g. No reported accidents"></label>
+      <label>Owners<input type="text" id="own-${esc(v.vin)}" data-in="owners" value="${esc(s.owners)}" placeholder="e.g. One owner"></label>
+    </div>
+    <p class="hint">Blank fields are left out of the ad. If key features are blank, Claude uses only standard equipment for this trim.</p>
+    <div class="actions">
+      <button type="button" class="btn primary" data-act="write">Write with Claude</button>
+      <button type="button" class="btn" data-act="stop" hidden>Stop</button>
+      <button type="button" class="btn" data-act="copy-prompt">Copy prompt</button>
+      <span class="note" data-note></span>
+    </div>`;
+  const current = v.current_description ? `<p class="hint">Current text on the site: "${esc(v.current_description)}"</p>` : "";
+  return `${current}${fields}
+    <div class="out">
+      <label for="text-${esc(v.vin)}">Description</label>
+      <textarea id="text-${esc(v.vin)}" data-in="text" placeholder="The description will appear here. You can edit it before copying.">${esc(asIs ? plain(DATA.prompts["as-is"]) : s.text)}</textarea>
+      <div class="actions"><button type="button" class="btn primary" data-act="copy-text">Copy description</button><span class="note words" data-words></span></div>
+    </div>`;
+}
+
+function wordCount(el){
+  const n = (el.value.match(/\S+/g) || []).length;
+  const w = el.closest(".panel").querySelector("[data-words]");
+  w.textContent = n ? `${n} words` : "";
+}
+
+async function copy(text, btn){
+  const label = btn.textContent;
+  try { await navigator.clipboard.writeText(text); btn.textContent = "Copied"; }
+  catch (e) { btn.textContent = "Select and copy manually"; }
+  setTimeout(() => btn.textContent = label, 1600);
+}
+
+const vehicle = el => DATA.vehicles.find(v => v.vin === el.closest(".car").dataset.vin);
+const sampleReady = window.claude ? claude.use("sample") : Promise.resolve(null);
+let sampleFn = null;
+sampleReady.then(fn => { sampleFn = fn; }).catch(() => {});
+const running = new Map();
+
+const ERR = {
+  not_granted: "Claude isn't allowed on this page. Use Copy prompt instead.",
+  sampling_disabled: "Claude isn't available on this account. Use Copy prompt instead.",
+  rate_limited: "Too many requests right now. Try again in a minute.",
+  session_expired: "Sign in to Claude again, then retry.",
+  refused: "Claude declined this one. Check the features text and try again.",
+};
+
+document.addEventListener("click", async e => {
+  const f = e.target.closest(".seg button");
+  if (f){ filter = f.dataset.f; document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", b === f)); render(); return; }
+  const b = e.target.closest("[data-act]"); if (!b || b.tagName === "SELECT") return;
+  const v = vehicle(b), s = st(v), carEl = b.closest(".car"), p = carEl.querySelector(".panel");
+  if (b.dataset.act === "toggle"){
+    const open = p.hidden; p.hidden = !open; b.setAttribute("aria-expanded", open);
+    if (open){ p.innerHTML = panel(v); wordCount(p.querySelector("textarea")); if (!sampleFn) p.querySelector("[data-act=write]")?.setAttribute("hidden",""); }
+    b.textContent = open ? "Close" : (s.text || s.type === "as-is" ? "Open description" : "Write description");
+  }
+  if (b.dataset.act === "copy-prompt") copy(buildPrompt(v, s), b);
+  if (b.dataset.act === "copy-text") copy(p.querySelector("textarea").value, b);
+  if (b.dataset.act === "stop") running.get(v.vin)?.abort();
+  if (b.dataset.act === "write"){
+    const ta = p.querySelector("textarea"), note = p.querySelector("[data-note]"), stop = p.querySelector("[data-act=stop]");
+    const ctl = new AbortController(); running.set(v.vin, ctl);
+    b.disabled = true; stop.hidden = false; note.className = "note"; note.textContent = "Thinking...";
+    try {
+      const {text, truncated} = await sampleFn(buildPrompt(v, s), {signal: ctl.signal,
+        onText: ({text}) => { note.textContent = "Writing..."; ta.value = plain(text); wordCount(ta); }});
+      ta.value = plain(text); s.text = ta.value; persist(); wordCount(ta); updateTally();
+      note.textContent = truncated ? "Cut short. Edit it or try again." : "Done. Review, then copy it into the listing.";
+    } catch (err) {
+      if (err.text) ta.value = plain(err.text);
+      if (err.code !== "cancelled"){ note.className = "note warn"; note.textContent = ERR[err.code] || "Something went wrong. Try again."; }
+      else note.textContent = "Stopped.";
+      if (["not_granted","sampling_disabled","not_declared","capability_disabled"].includes(err.code)) b.hidden = true;
+    } finally { b.disabled = false; stop.hidden = true; running.delete(v.vin); }
+  }
+});
+
+document.addEventListener("change", e => {
+  if (e.target.dataset.act !== "type") return;
+  const v = vehicle(e.target), s = st(v);
+  s.type = e.target.value; e.target.dataset.v = s.type; persist();
+  const p = e.target.closest(".car").querySelector(".panel");
+  if (!p.hidden){ p.innerHTML = panel(v); wordCount(p.querySelector("textarea")); if (!sampleFn) p.querySelector("[data-act=write]")?.setAttribute("hidden",""); }
+  updateTally();
+});
+
+document.addEventListener("input", e => {
+  if (e.target.id === "q"){ render(); return; }
+  const k = e.target.dataset.in; if (!k) return;
+  const v = vehicle(e.target), s = st(v);
+  if (k === "text"){ if (s.type !== "as-is") s.text = e.target.value; wordCount(e.target); }
+  else s[k] = e.target.value;
+  persist(); updateTally();
+});
+
+function updateTally(){
+  const vs = DATA.vehicles, count = t => vs.filter(v => st(v).type === t).length;
+  document.getElementById("tally").innerHTML =
+    `<span><b>${vs.length}</b> of ${DATA.total_used} used vehicles need a description</span>` +
+    `<span><b>${vs.filter(v=>v.status==="missing").length}</b> none</span>` +
+    `<span><b>${vs.filter(v=>v.status==="generic").length}</b> generic blurb</span>` +
+    `<span><b>${vs.filter(v=>st(v).text).length}</b> written</span>` +
+    `<span>${Object.entries(TYPES).map(([k,l]) => `${l} <b>${count(k)}</b>`).join(" &middot; ")}</span>`;
+}
+
+render();
+</script>
