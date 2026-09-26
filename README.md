@@ -17,8 +17,18 @@ at 09:00 UTC (5 a.m. Toronto in summer, 4 a.m. in winter), on every push to
 `main`, and on demand from the Actions tab ("Run workflow"). If a scan fails,
 the previous page stays up.
 
-On GitHub Pages the "Write with Claude" button is hidden; use "Copy prompt" and
-paste into Claude.
+## Writing descriptions
+
+Outside Claude (GitHub Pages and the desktop app) the page writes descriptions
+through the Anthropic API. Paste an API key from console.anthropic.com into the
+box at the top of the page; it is saved only in that browser. API usage is
+billed to that Anthropic account, separately from any Claude subscription.
+Requests use Claude Opus 5, with Anthropic's default fallback model if a
+request is declined. "Copy prompt" still works without a key.
+
+The page embeds the official Anthropic JS SDK from
+`vendor/anthropic-sdk.min.js`, so it doesn't depend on a CDN. Rebuild it with
+`vendor/build-sdk.sh [version]`.
 
 Type suggestions: certified units default to CPO, units under $5,000 default to
 AS-IS, everything else to Safety Certified. Change any of them on the page.

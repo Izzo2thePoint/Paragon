@@ -71,6 +71,11 @@ textarea{width:100%;min-height:220px;resize:vertical;line-height:1.5;box-sizing:
 .note{font-size:13px;color:var(--muted)}
 .note.warn{color:var(--missing)}
 .words{font-variant-numeric:tabular-nums}
+.keybar{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:8px}
+.keybar h2{font-size:20px}
+.keybar .hint{max-width:70ch}
+.keybar input{flex:1 1 260px;min-width:0;font-family:var(--mono);font-size:13px}
+.keybar.attention{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
 .empty{padding:28px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:10px}
 @media (max-width:720px){
   .row{grid-template-columns:1fr}
@@ -86,6 +91,16 @@ textarea{width:100%;min-height:220px;resize:vertical;line-height:1.5;box-sizing:
     <h1>Used inventory: descriptions to write</h1>
     <p class="sub" id="scanned"></p>
   </header>
+  <section class="keybar" id="keybar" hidden>
+    <h2>Writing descriptions</h2>
+    <p class="hint" id="keystate"></p>
+    <p class="hint">To write descriptions on this page, paste an Anthropic API key. Create one at console.anthropic.com under Settings, then API keys. Usage is billed to that account, separately from any Claude subscription, and costs a few cents per description. The key is saved only in this browser on this computer.</p>
+    <div class="actions">
+      <input type="password" id="apikey" placeholder="sk-ant-..." autocomplete="off" aria-label="Anthropic API key">
+      <button type="button" class="btn primary" id="savekey">Save key</button>
+      <button type="button" class="btn" id="clearkey" hidden>Remove key</button>
+    </div>
+  </section>
   <div class="tally" id="tally"></div>
   <div class="bar">
     <div class="seg" role="group" aria-label="Show">
@@ -98,6 +113,7 @@ textarea{width:100%;min-height:220px;resize:vertical;line-height:1.5;box-sizing:
   <div class="list" id="list"></div>
 </div>
 
+<script>/*__SDK__*/</script>
 <script>
 const DATA = /*__DATA__*/null;
 const TYPES = {"as-is":"AS-IS","safety":"Safety Certified","cpo":"CPO"};
@@ -211,10 +227,68 @@ async function copy(text, btn){
 }
 
 const vehicle = el => DATA.vehicles.find(v => v.vin === el.closest(".car").dataset.vin);
-const sampleReady = window.claude ? claude.use("sample") : Promise.resolve(null);
-let sampleFn = null;
-sampleReady.then(fn => { sampleFn = fn; }).catch(() => {});
 const running = new Map();
+
+// Inside Claude the page asks Claude directly; anywhere else (GitHub Pages, the desktop app)
+// it calls the Anthropic API with the viewer's own key.
+let sampleFn = null;
+if (window.claude) claude.use("sample").then(fn => { sampleFn = fn; }).catch(() => {});
+
+const KEY_STORE = "crosby-anthropic-key";
+let apiKey = "";
+try { apiKey = localStorage.getItem(KEY_STORE) || ""; } catch (e) {}
+// window.Anthropic is the official JS SDK, embedded by scan.py from vendor/anthropic-sdk.min.js.
+const loadSdk = () => window.Anthropic ? Promise.resolve(window.Anthropic) : Promise.reject({code: "sdk_load"});
+
+function showKeyState(){
+  const bar = document.getElementById("keybar");
+  bar.hidden = !!window.claude;
+  document.getElementById("keystate").textContent = apiKey
+    ? "An API key is saved. Use Write description on any vehicle."
+    : "No API key saved yet, so Write description can't run.";
+  document.getElementById("clearkey").hidden = !apiKey;
+  document.getElementById("apikey").value = "";
+}
+
+async function apiWrite(prompt, signal, onText){
+  const Anthropic = await loadSdk();
+  const client = new Anthropic({apiKey, dangerouslyAllowBrowser: true});
+  try {
+    const stream = client.beta.messages.stream({
+      model: "claude-opus-5",
+      max_tokens: 16000,
+      betas: ["server-side-fallback-2026-07-01"],
+      fallbacks: "default",
+      messages: [{role: "user", content: prompt}],
+    }, {signal});
+    stream.on("text", (delta, snapshot) => onText(snapshot));
+    const msg = await stream.finalMessage();
+    if (msg.stop_reason === "refusal") throw {code: "refused"};
+    const text = msg.content.filter(b => b.type === "text").map(b => b.text).join("");
+    return {text, truncated: msg.stop_reason === "max_tokens"};
+  } catch (e) {
+    if (e.code) throw e;
+    if (e instanceof Anthropic.APIUserAbortError) throw {code: "cancelled"};
+    if (e instanceof Anthropic.AuthenticationError || e instanceof Anthropic.PermissionDeniedError) throw {code: "bad_key"};
+    if (e instanceof Anthropic.RateLimitError) throw {code: "rate_limited"};
+    if (e instanceof Anthropic.BadRequestError) throw {code: "bad_request", message: e.message};
+    if (e instanceof Anthropic.APIConnectionError) throw {code: "network"};
+    throw {code: "unknown", message: e.message};
+  }
+}
+
+function generate(prompt, signal, onText){
+  if (sampleFn) return sampleFn(prompt, {signal, onText: ({text}) => onText(text)});
+  if (apiKey) return apiWrite(prompt, signal, onText);
+  return Promise.reject({code: "no_key"});
+}
+
+function askForKey(){
+  const bar = document.getElementById("keybar");
+  bar.hidden = false; bar.classList.add("attention");
+  bar.scrollIntoView({behavior: "smooth", block: "start"});
+  document.getElementById("apikey").focus();
+}
 
 const ERR = {
   not_granted: "Claude isn't allowed on this page. Use Copy prompt instead.",
@@ -222,16 +296,29 @@ const ERR = {
   rate_limited: "Too many requests right now. Try again in a minute.",
   session_expired: "Sign in to Claude again, then retry.",
   refused: "Claude declined this one. Check the features text and try again.",
+  no_key: "Add an API key at the top of the page first.",
+  bad_key: "The API key was rejected. Check it at the top of the page.",
+  network: "Couldn't reach Anthropic. Check the internet connection and try again.",
+  sdk_load: "The Claude connector is missing from this page. Re-download the app or reload the page.",
 };
 
 document.addEventListener("click", async e => {
+  if (e.target.id === "savekey"){
+    const k = document.getElementById("apikey").value.trim(); if (!k) return;
+    apiKey = k; try { localStorage.setItem(KEY_STORE, k); } catch (err) {}
+    document.getElementById("keybar").classList.remove("attention"); showKeyState(); return;
+  }
+  if (e.target.id === "clearkey"){
+    apiKey = ""; try { localStorage.removeItem(KEY_STORE); } catch (err) {}
+    showKeyState(); return;
+  }
   const f = e.target.closest(".seg button");
   if (f){ filter = f.dataset.f; document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", b === f)); render(); return; }
   const b = e.target.closest("[data-act]"); if (!b || b.tagName === "SELECT") return;
   const v = vehicle(b), s = st(v), carEl = b.closest(".car"), p = carEl.querySelector(".panel");
   if (b.dataset.act === "toggle"){
     const open = p.hidden; p.hidden = !open; b.setAttribute("aria-expanded", open);
-    if (open){ p.innerHTML = panel(v); wordCount(p.querySelector("textarea")); if (!sampleFn) p.querySelector("[data-act=write]")?.setAttribute("hidden",""); }
+    if (open){ p.innerHTML = panel(v); wordCount(p.querySelector("textarea")); }
     b.textContent = open ? "Close" : (s.text || s.type === "as-is" ? "Open description" : "Write description");
   }
   if (b.dataset.act === "copy-prompt") copy(buildPrompt(v, s), b);
@@ -239,18 +326,20 @@ document.addEventListener("click", async e => {
   if (b.dataset.act === "stop") running.get(v.vin)?.abort();
   if (b.dataset.act === "write"){
     const ta = p.querySelector("textarea"), note = p.querySelector("[data-note]"), stop = p.querySelector("[data-act=stop]");
+    if (!sampleFn && !apiKey){ note.className = "note warn"; note.textContent = ERR.no_key; askForKey(); return; }
     const ctl = new AbortController(); running.set(v.vin, ctl);
     b.disabled = true; stop.hidden = false; note.className = "note"; note.textContent = "Thinking...";
     try {
-      const {text, truncated} = await sampleFn(buildPrompt(v, s), {signal: ctl.signal,
-        onText: ({text}) => { note.textContent = "Writing..."; ta.value = plain(text); wordCount(ta); }});
+      const {text, truncated} = await generate(buildPrompt(v, s), ctl.signal,
+        text => { note.textContent = "Writing..."; ta.value = plain(text); wordCount(ta); });
       ta.value = plain(text); s.text = ta.value; persist(); wordCount(ta); updateTally();
       note.textContent = truncated ? "Cut short. Edit it or try again." : "Done. Review, then copy it into the listing.";
     } catch (err) {
       if (err.text) ta.value = plain(err.text);
-      if (err.code !== "cancelled"){ note.className = "note warn"; note.textContent = ERR[err.code] || "Something went wrong. Try again."; }
+      if (err.code !== "cancelled"){ note.className = "note warn"; note.textContent = ERR[err.code] || err.message || "Something went wrong. Try again."; }
       else note.textContent = "Stopped.";
       if (["not_granted","sampling_disabled","not_declared","capability_disabled"].includes(err.code)) b.hidden = true;
+      if (err.code === "bad_key") askForKey();
     } finally { b.disabled = false; stop.hidden = true; running.delete(v.vin); }
   }
 });
@@ -260,7 +349,7 @@ document.addEventListener("change", e => {
   const v = vehicle(e.target), s = st(v);
   s.type = e.target.value; e.target.dataset.v = s.type; persist();
   const p = e.target.closest(".car").querySelector(".panel");
-  if (!p.hidden){ p.innerHTML = panel(v); wordCount(p.querySelector("textarea")); if (!sampleFn) p.querySelector("[data-act=write]")?.setAttribute("hidden",""); }
+  if (!p.hidden){ p.innerHTML = panel(v); wordCount(p.querySelector("textarea")); }
   updateTally();
 });
 
@@ -283,5 +372,6 @@ function updateTally(){
     `<span>${Object.entries(TYPES).map(([k,l]) => `${l} <b>${count(k)}</b>`).join(" &middot; ")}</span>`;
 }
 
+showKeyState();
 render();
 </script>
