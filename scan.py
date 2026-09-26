@@ -168,7 +168,8 @@ def main():
     page_data = dict(data, vehicles=[v for v in vehicles if v["status"] != "ok"], prompts=prompts)
     template = (ROOT / "review_template.html").read_text("utf-8")
     payload = json.dumps(page_data).replace("</", "<\\/")
-    page = template.replace("/*__DATA__*/null", payload)
+    sdk = (ROOT / "vendor" / "anthropic-sdk.min.js").read_text("utf-8")
+    page = template.replace("/*__SDK__*/", sdk).replace("/*__DATA__*/null", payload)
     standalone = PAGE_SHELL.replace("<!--PAGE-->", page)
 
     if FROZEN:
