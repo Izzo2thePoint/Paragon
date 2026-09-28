@@ -67,6 +67,11 @@ def vms_get(endpoint, attempts=5):
                 raise
             wait = e.headers.get("Retry-After")
             time.sleep(int(wait) if wait and wait.isdigit() else 5 * 2 ** attempt)
+        except (urllib.error.URLError, ConnectionError, TimeoutError):
+            # Dropped connections ("connection reset by peer") and timeouts.
+            if attempt == attempts - 1:
+                raise
+            time.sleep(5 * 2 ** attempt)
 
 
 def list_used():
