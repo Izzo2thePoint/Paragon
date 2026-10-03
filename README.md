@@ -1,11 +1,13 @@
 # Crosby VW used-vehicle descriptions
 
-Finds used vehicles on crosbyvw.com with no description (or only the generic
+Finds used vehicles on crosbyvw.com with no description (or only placeholder
+text: the one-line colour/warranty text the site fills in, or the old
 "family-owned business for over 50 years" blurb) and builds a review page where
 each vehicle gets an inventory type and a ready-to-paste description.
 
 - `prompts/` - the Safety Certified and CPO prompts, and the fixed AS-IS text.
-- `scan.py` - pulls the used inventory through the website and writes
+- `scan.py` - reads crosbyvw.com/used/search.html (demos included) and each
+  vehicle's page, and writes
   `data/inventory.json` and `review.html`. Run: `python3 scan.py`
 - `review_template.html` - the review page; `scan.py` fills in the vehicles and prompts.
 

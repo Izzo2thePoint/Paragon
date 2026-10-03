@@ -106,7 +106,7 @@ textarea{width:100%;min-height:220px;resize:vertical;line-height:1.5;box-sizing:
     <div class="seg" role="group" aria-label="Show">
       <button type="button" data-f="all" aria-pressed="true">All</button>
       <button type="button" data-f="missing" aria-pressed="false">No description</button>
-      <button type="button" data-f="generic" aria-pressed="false">Generic blurb only</button>
+      <button type="button" data-f="generic" aria-pressed="false">Placeholder only</button>
     </div>
     <input type="search" id="q" placeholder="Search stock #, VIN, make, model">
   </div>
@@ -175,8 +175,8 @@ function card(v){
     <div class="row">
       <div>
         <div class="title"><a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.year)} ${esc(v.make)} ${esc(v.model)} ${esc(v.trim)}</a></div>
-        <div class="meta"><span class="mono">#${esc(v.stock)}</span><span class="mono">${esc(v.vin)}</span><span>${fmt(v.km)} km</span><span>$${fmt(v.price)}</span><span>${esc(v.exterior)}${where}</span></div>
-        <span class="chip ${v.status}">${v.status === "missing" ? "No description" : "Generic blurb only"}</span>
+        <div class="meta"><span class="mono">#${esc(v.stock)}</span><span class="mono">${esc(v.vin)}</span><span>${fmt(v.km)} km</span><span>$${fmt(v.price)}</span><span>${esc(v.exterior)}${where}${v.demo ? " &middot; Demo" : ""}</span></div>
+        <span class="chip ${v.status}">${v.status === "missing" ? "No description" : "Placeholder only"}</span>
       </div>
       <div class="side">
         <select class="type" id="type-${esc(v.vin)}" data-act="type" data-v="${s.type}" aria-label="Inventory type">
@@ -367,7 +367,7 @@ function updateTally(){
   document.getElementById("tally").innerHTML =
     `<span><b>${vs.length}</b> of ${DATA.total_used} used vehicles need a description</span>` +
     `<span><b>${vs.filter(v=>v.status==="missing").length}</b> none</span>` +
-    `<span><b>${vs.filter(v=>v.status==="generic").length}</b> generic blurb</span>` +
+    `<span><b>${vs.filter(v=>v.status==="generic").length}</b> placeholder only</span>` +
     `<span><b>${vs.filter(v=>st(v).text).length}</b> written</span>` +
     `<span>${Object.entries(TYPES).map(([k,l]) => `${l} <b>${count(k)}</b>`).join(" &middot; ")}</span>`;
 }
