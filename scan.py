@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Scan Crosby VW's used inventory and build the description review page.
 
-Pulls every used vehicle (in stock, in transit, on order) through the
-website's own inventory endpoint, flags the ones with no description (or only
-the generic dealer blurb), and writes:
+Reads every used vehicle from the website's used inventory page
+(crosbyvw.com/used/search.html, which includes demos), opens each vehicle's
+page for its details and description, flags the ones with no description (or
+only the generic dealer blurb), and writes:
 
   data/inventory.json  - every used vehicle with its description status
   review.html          - the review page, with the prompts and vehicles embedded
@@ -19,7 +20,6 @@ import re
 import sys
 import time
 import urllib.error
-import urllib.parse
 import urllib.request
 import webbrowser
 from datetime import datetime, timezone
@@ -29,13 +29,20 @@ FROZEN = getattr(sys, "frozen", False)
 # Bundled prompts and template live in PyInstaller's unpack folder when frozen.
 ROOT = Path(getattr(sys, "_MEIPASS", Path(__file__).parent))
 SITE = "https://www.crosbyvw.com"
-PROXY = SITE + "/wp-content/plugins/convertus-vms/include/php/ajax-vehicles.php"
-VMS = "https://vms.prod.convertus.rocks/api/"
-INVENTORY_ID = "4211"
+LISTING_URL = SITE + "/used/search.html"
+# Each vehicle page embeds its full record as `window.__vdpJSON = {...}`.
+VDP_MARKER = "window.__vdpJSON = "
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 # The stock blurb some units carry instead of a real description.
 GENERIC_MARKER = "family-owned business for over 50 years"
+# The site auto-fills units with a one-line placeholder ("Pure White, Grigio, Cloth
+# Seating Surfaces 4 years / 80,000 km"); real descriptions run 190+ words.
+MIN_REAL_WORDS = 60
+# The site title-cases trims ("Execline 2.0 Tsi"); restore the usual spellings.
+TRIM_WORDS = {w.lower(): w for w in (
+    "TSI TDI GTI GLI GLS GL GT SE SEL SXT SLE SLT SL SV SR LX EX EX-L LT LTZ RS XLE XSE "
+    "AWD FWD RWD 4WD 4X4 4MOTION 4MATIC xDrive DSG CVT R-Line EV PHEV HEV").split()}
 # Prices under this default to AS-IS in the dropdown.
 AS_IS_PRICE_LIMIT = 5000
 
@@ -54,13 +61,16 @@ PAGE_SHELL = """<!doctype html>
 """
 
 
-def vms_get(endpoint, attempts=5):
-    url = PROXY + "?endpoint=" + urllib.parse.quote(endpoint, safe="") + "&action=vms_data"
+class LayoutChanged(RuntimeError):
+    """The website no longer has the data where the scanner expects it."""
+
+
+def fetch(url, attempts=5):
     req = urllib.request.Request(url, headers=HEADERS)
     for attempt in range(attempts):
         try:
             with urllib.request.urlopen(req, timeout=60) as resp:
-                return json.load(resp)
+                return resp.read().decode("utf-8", "replace")
         except urllib.error.HTTPError as e:
             # The site rate-limits bursts (429); back off and try again.
             if e.code not in (429, 500, 502, 503, 504) or attempt == attempts - 1:
@@ -75,21 +85,31 @@ def vms_get(endpoint, attempts=5):
 
 
 def list_used():
-    vehicles, page = [], 1
-    while True:
-        data = vms_get(
-            f"{VMS}filtering/?cp={INVENTORY_ID}&ln=en&pg={page}&pc=100"
-            "&sc=used&in_transit=true&in_stock=true&on_order=true"
-        )
-        vehicles += data["results"]
-        if not data["results"] or len(vehicles) >= int(data["summary"]["total_vehicles"]):
-            return vehicles
-        page += 1
+    """Every vehicle on the used inventory page, from its schema.org Vehicle data."""
+    html = fetch(LISTING_URL)
+    vehicles, seen = [], set()
+    for m in re.finditer(r'<script type="application/ld\+json">\s*(\{.*?\})\s*</script>', html, re.S):
+        try:
+            item = json.loads(m.group(1))
+        except ValueError:
+            continue
+        url = (item.get("offers") or {}).get("url")
+        if item.get("@type") != "Vehicle" or not url or url in seen:
+            continue
+        seen.add(url)
+        vehicles.append({"url": url, "vin": item.get("vehicleIdentificationNumber", ""),
+                         "name": " ".join(item.get("name", "").split())})
+    if not vehicles:
+        raise LayoutChanged(f"No vehicles found on {LISTING_URL}; the website layout may have changed.")
+    return vehicles
 
 
-def vehicle_detail(vin):
-    data = vms_get(f"{VMS}inventory/{INVENTORY_ID}/?&ln=en&vn={vin}&ba=true")
-    return data[0] if isinstance(data, list) else data
+def vehicle_detail(url):
+    html = fetch(url)
+    i = html.find(VDP_MARKER)
+    if i < 0:
+        raise LayoutChanged(f"No vehicle data on {url}; the website layout may have changed.")
+    return json.JSONDecoder().raw_decode(html, i + len(VDP_MARKER))[0]
 
 
 def plain_text(html):
@@ -99,67 +119,101 @@ def plain_text(html):
 def description_status(text):
     if not text:
         return "missing"
-    if GENERIC_MARKER in text:
+    if GENERIC_MARKER in text or len(text.split()) < MIN_REAL_WORDS:
         return "generic"
     return "ok"
 
 
-def suggested_type(v):
-    if str(v.get("certified")) == "1":
-        return "cpo"
-    try:
-        if float(v.get("final_price") or 0) and float(v["final_price"]) < AS_IS_PRICE_LIMIT:
-            return "as-is"
-    except ValueError:
-        pass
-    return "safety"
+def trim_name(trim):
+    words = []
+    for w in trim.split():
+        if w.lower() in TRIM_WORDS:
+            w = TRIM_WORDS[w.lower()]
+        elif re.fullmatch(r"\d+(\.\d+)?[a-z]", w):
+            w = w.upper()  # 2.0t -> 2.0T
+        words.append(w)
+    return " ".join(words)
 
 
 def number(value):
+    digits = re.sub(r"[^0-9.]", "", str(value or ""))
     try:
-        return int(float(value))
-    except (TypeError, ValueError):
+        return int(float(digits))
+    except ValueError:
         return None
 
 
-def summarize(v):
-    text = plain_text(v.get("description"))
+def field(value, key="basic"):
+    """The site's text fields are either plain strings or {"basic": ...} objects; "N.A." means unknown."""
+    if isinstance(value, dict):
+        value = value.get(key, "")
+    value = str(value or "").strip()
+    return "" if value.upper() in ("N.A.", "N/A", "NA") else value
+
+
+def suggested_type(v, price):
+    if v.get("isCertified"):
+        return "cpo"
+    if v.get("asIs") or (price and price < AS_IS_PRICE_LIMIT):
+        return "as-is"
+    return "safety"
+
+
+def specs(sections):
+    """The spec table on the vehicle page, as {"specsDriveTrain": "Front-wheel drive", ...}."""
+    table = {}
+    for group in (sections.get("specifications") or {}).get("listing") or []:
+        for key, pair in group.items():
+            if isinstance(pair, list) and pair:
+                table[key] = field(pair[0])
+    return table
+
+
+def summarize(v, url):
+    sections = v.get("sections") or {}
+    spec = specs(sections)
+    parts = (sections.get("description") or {}).get("text") or []
+    text = plain_text(" ".join(p.get("text", "") for p in parts if isinstance(p, dict)))
     status = description_status(text)
+    price = number((v.get("prices") or {}).get("priceInteger"))
+    color = v.get("color") or {}
+    delivery = str(v.get("deliveryStatus") or "").lower()
+    stock = field(v.get("sn"))
     return {
-        "stock": v.get("stock_number", ""),
-        "vin": v.get("vin", ""),
-        "year": v.get("year"),
-        "make": v.get("make", ""),
-        "model": v.get("model", ""),
-        "trim": v.get("trim", ""),
-        "km": number(v.get("odometer")),
-        "price": number(v.get("final_price")),
-        "certified": str(v.get("certified")) == "1",
-        "exterior": v.get("exterior_color", ""),
-        "interior": v.get("interior_color", ""),
-        "drivetrain": v.get("drive_train", ""),
-        "engine": v.get("engine", ""),
-        "transmission": v.get("transmission", ""),
-        "body": v.get("body_style", ""),
-        "fuel": v.get("fuel_type", ""),
-        "in_transit": str(v.get("in_transit")) == "1",
-        "on_order": str(v.get("on_order")) == "1",
-        "url": v.get("vdp_url", ""),
+        "stock": re.sub(r"-demo$", "", stock, flags=re.I),
+        "demo": bool(v.get("isDemo")) or stock.lower().endswith("-demo"),
+        "vin": field(v.get("niv")),
+        "year": number(v.get("year")),
+        "make": field(v.get("make")),
+        "model": field(v.get("model")),
+        "trim": trim_name(field(v.get("version"))),
+        "km": number(v.get("km")),
+        "price": price,
+        "certified": bool(v.get("isCertified")),
+        "exterior": field(color.get("exterior")) or spec.get("specsExtColor", ""),
+        "interior": field(color.get("interior")) or spec.get("specsIntColor", ""),
+        "drivetrain": spec.get("specsDriveTrain") or field(v.get("drivetrain")),
+        "engine": spec.get("specsEngine") or field(v.get("engine")),
+        "transmission": spec.get("specsTransmission") or field(v.get("transmission")),
+        "body": field(v.get("bodytype")) or spec.get("specsBodyType", ""),
+        "fuel": spec.get("specsFuel") or field(v.get("fueltype")),
+        "in_transit": "transit" in delivery,
+        "on_order": "order" in delivery,
+        "url": url,
         "status": status,
         "current_description": text if status == "generic" else "",
-        "suggested": suggested_type(v),
+        "suggested": suggested_type(v, price),
     }
 
 
 def main():
     print("Scanning crosbyvw.com used inventory...")
     listing = list_used()
-    details = []
-    for i, v in enumerate(listing, 1):
-        print(f"  {i}/{len(listing)}  {v.get('year')} {v.get('make')} {v.get('model')}", flush=True)
-        details.append(vehicle_detail(v["vin"]))
+    vehicles = []
+    for i, item in enumerate(listing, 1):
+        print(f"  {i}/{len(listing)}  {item['name']}", flush=True)
+        vehicles.append(summarize(vehicle_detail(item["url"]), item["url"]))
         time.sleep(0.5)
-    vehicles = [summarize(v) for v in details]
     vehicles.sort(key=lambda v: (v["status"] == "ok", v["status"] != "missing", v["stock"]))
 
     scanned = datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -192,7 +246,7 @@ def main():
     need = page_data["vehicles"]
     print(f"{len(vehicles)} used vehicles scanned; {len(need)} need a description "
           f"({sum(v['status'] == 'missing' for v in need)} missing, "
-          f"{sum(v['status'] == 'generic' for v in need)} generic blurb only).")
+          f"{sum(v['status'] == 'generic' for v in need)} placeholder text only).")
 
 
 if __name__ == "__main__":
